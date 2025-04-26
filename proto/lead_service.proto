@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package leadreach;
+
+import "lead.proto";
+
+service LeadService {
+  rpc GetLead(GetLeadRequest) returns (Lead);
+  rpc UpdateStatus(UpdateStatusRequest) returns (Lead);
+}
+
+message GetLeadRequest     { string id = 1; }
+message UpdateStatusRequest{
+  string id     = 1;
+  string status = 2;
+}

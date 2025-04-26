@@ -1,0 +1,5 @@
+rootProject.name = 'leadreach'
+include 'services:lead-service',
+        'services:enrichment-service',
+        'services:outreach-service',
+        'services:orchestrator'

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package leadreach;
+
+import "lead.proto";
+
+service EnrichmentService {
+  rpc Enrich(EnrichRequest) returns (EnrichResponse);
+}
+
+message EnrichRequest  { string id = 1; }
+message EnrichResponse { Lead   lead = 1; }
