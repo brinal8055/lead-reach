@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package leadreach;
+
+import "lead.proto";
+
+service OutreachService {
+  rpc Send(SendRequest) returns (SendResponse);
+}
+
+message SendRequest  { Lead lead = 1; }
+message SendResponse { bool success = 1; }
