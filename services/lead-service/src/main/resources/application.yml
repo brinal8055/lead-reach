@@ -3,6 +3,12 @@ micronaut:
     name: lead-service
   server:
     port: 50051
+  flyway:
+    enabled: true
+    datasources:
+      default:
+        enabled: true
+        locations: classpath:db/migration
 
 datasources:
   default:
@@ -18,11 +24,6 @@ jpa:
         hbm2ddl:
           auto: validate
         show_sql: true
-
-flyway:
-  datasources:
-    default:
-      enabled: true
 
 grpc:
   server:

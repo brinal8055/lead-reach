@@ -1,6 +1,5 @@
-package com.leadreach;
+package com.leadreach.manager;
 
-import com.leadreach.domain.LeadEntity;
 import com.leadreach.repo.LeadRepository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

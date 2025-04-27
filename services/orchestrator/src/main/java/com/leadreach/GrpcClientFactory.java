@@ -25,7 +25,7 @@ public class GrpcClientFactory {
     @Bean
     @Singleton
     public EnrichmentServiceGrpc.EnrichmentServiceBlockingStub enrichmentServiceStub() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("enrichment-service", 50051)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("enrichment-service", 50052)
                 .usePlaintext()
                 .build();
         return EnrichmentServiceGrpc.newBlockingStub(channel);
@@ -34,7 +34,7 @@ public class GrpcClientFactory {
     @Bean
     @Singleton
     public OutreachServiceGrpc.OutreachServiceBlockingStub outreachServiceStub() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("outreach-service", 50051)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("outreach-service", 50053)
                 .usePlaintext()
                 .build();
         return OutreachServiceGrpc.newBlockingStub(channel);

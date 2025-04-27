@@ -11,6 +11,7 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
     annotationProcessor("io.micronaut:micronaut-http-validation")
     implementation("io.micronaut:micronaut-jackson-databind")
@@ -22,7 +23,12 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-jpa")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("mysql:mysql-connector-java:8.0.33")
+
+    // Add Flyway with MySQL 8.0 support
     implementation("io.micronaut.flyway:micronaut-flyway")
+    implementation("org.flywaydb:flyway-core:9.22.3")
+    implementation("org.flywaydb:flyway-mysql:9.22.3")
+
     runtimeOnly("jakarta.persistence:jakarta.persistence-api")
     annotationProcessor("io.micronaut.data:micronaut-data-processor")
     

@@ -3,6 +3,7 @@ package com.leadreach;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import jakarta.inject.Singleton;
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -23,11 +24,11 @@ public class DynamoDbConfig {
         // For local development, connect to local DynamoDB
         String dynamoDbEndpoint = System.getenv("DYNAMO_ENDPOINT");
         if (dynamoDbEndpoint != null && !dynamoDbEndpoint.isEmpty()) {
-            // For local DynamoDB, we need to provide dummy credentials
-            String accessKey = System.getenv("DYNAMODB_ACCESS_KEY_ID") != null ? 
-                System.getenv("DYNAMODB_ACCESS_KEY_ID") : "dummy-key";
-            String secretKey = System.getenv("DYNAMODB_SECRET_ACCESS_KEY") != null ? 
-                System.getenv("DYNAMODB_SECRET_ACCESS_KEY") : "dummy-secret";
+            // For local DynamoDB, we need to provide credentials
+            String accessKey = System.getenv("AWS_ACCESS_KEY_ID") != null ? 
+                System.getenv("AWS_ACCESS_KEY_ID") : "dummy";
+            String secretKey = System.getenv("AWS_SECRET_ACCESS_KEY") != null ? 
+                System.getenv("AWS_SECRET_ACCESS_KEY") : "dummy";
                 
             builder.endpointOverride(URI.create(dynamoDbEndpoint))
                    .credentialsProvider(StaticCredentialsProvider.create(
