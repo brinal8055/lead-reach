@@ -19,22 +19,25 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     
     // AWS DynamoDB dependencies
-    implementation("software.amazon.awssdk:dynamodb:2.20.56")
-    implementation("software.amazon.awssdk:dynamodb-enhanced:2.20.56")
+    implementation("software.amazon.awssdk:dynamodb:2.24.10")
     
     // Jackson for JSON processing
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
+    
+    // gRPC client stubs for other services
+    implementation("io.grpc:grpc-netty:1.62.2")
+    implementation("io.grpc:grpc-protobuf:1.62.2")
+    implementation("io.grpc:grpc-stub:1.62.2")
     
     // DynamoDB Local for testing
-    testImplementation("com.amazonaws:DynamoDBLocal:2.0.0")
     testImplementation("org.testcontainers:dynalite")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers")
     
     compileOnly("io.micronaut:micronaut-http-client")
     runtimeOnly("ch.qos.logback:logback-classic")
     testImplementation("io.micronaut:micronaut-http-client")
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:testcontainers")
 }
 
 application {
@@ -52,7 +55,7 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("com.leadreach.*", "main.java.workflow.*")
+        annotations("com.leadreach.*", "workflow.*")
     }
 }
 
@@ -72,20 +75,21 @@ protobuf {
     }
 }
 
-// Copy proto files to the expected location
-task copyProtoFiles(type: Copy) {
-    from '../../../proto'
-    into 'src/main/proto'
+// Copy proto files to the expected location - only if not in Docker
+task copyProtoFiles {
+    onlyIf {
+        !project.hasProperty('skipProtoFileCopy') && !System.getenv('DOCKER_BUILD')
+    }
+    doLast {
+        copy {
+            from '../../../proto'
+            into 'src/main/proto'
+            includeEmptyDirs = false
+        }
+    }
 }
 
 // Make sure proto files are copied before compiling, generating proto, and processing resources
 tasks.compileJava.dependsOn(copyProtoFiles)
 tasks.generateProto.dependsOn(copyProtoFiles)
 tasks.processResources.dependsOn(copyProtoFiles)
-
-// DynamoDB Local repository
-repositories {
-    maven {
-        url "https://s3-us-west-2.amazonaws.com/dynamodb-local/release"
-    }
-}

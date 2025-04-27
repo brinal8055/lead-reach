@@ -1,6 +1,61 @@
-version: "3.9"
 services:
+  # ---------- Shared datastores ----------
   dynamodb:
     image: amazon/dynamodb-local
+    container_name: dynamodb
     ports: [ "8000:8000" ]
-  # microservices will be added after Cline generates Dockerfiles
+
+  mysql:
+    image: mysql:8.3
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root            # admin
+      MYSQL_DATABASE:  leadreach
+      MYSQL_USER:      root
+      MYSQL_PASSWORD:  123456
+    ports: [ "3306:3306" ]
+
+  # ---------- Micro-services ----------
+  lead-service:
+    build:
+      context: .
+      dockerfile: ./services/lead-service/Dockerfile
+    ports: [ "50051:50051" ]
+    environment:
+      # JDBC settings picked up by Micronaut
+      - JDBC_URL=jdbc:mysql://mysql:3306/leadreach
+      - JDBC_USER=root
+      - JDBC_PASSWORD=123456
+    depends_on: [ mysql ]
+
+  enrichment-service:
+    build:
+      context: .
+      dockerfile: ./services/enrichment-service/Dockerfile
+    ports: [ "50052:50052" ]
+    depends_on: [ dynamodb ]       # only if it still reads checkpoints; otherwise drop
+
+  outreach-service:
+    build:
+      context: .
+      dockerfile: ./services/outreach-service/Dockerfile
+    ports: [ "50053:50053" ]
+    depends_on: [ dynamodb ]       # remove if not needed
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: ./services/orchestrator/Dockerfile
+    ports: [ "50054:50054" ]
+    environment:
+      - AWS_REGION=local
+      - DYNAMO_ENDPOINT=http://dynamodb:8000
+      - LEAD_SERVICE_HOST=lead-service:50051
+      - ENRICH_SERVICE_HOST=enrichment-service:50052
+      - OUTREACH_SERVICE_HOST=outreach-service:50053
+    depends_on:
+      - dynamodb
+      - lead-service
+      - enrichment-service
+      - outreach-service

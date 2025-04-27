@@ -18,9 +18,16 @@ dependencies {
     implementation("jakarta.annotation:jakarta.annotation-api")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     
-    // AWS DynamoDB dependencies
-    implementation("software.amazon.awssdk:dynamodb:2.20.56")
-    implementation("software.amazon.awssdk:dynamodb-enhanced:2.20.56")
+    // Database dependencies
+    implementation("io.micronaut.data:micronaut-data-jpa")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+    implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("io.micronaut.flyway:micronaut-flyway")
+    runtimeOnly("jakarta.persistence:jakarta.persistence-api")
+    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    
+    // Add snakeyaml for YAML configuration
+    runtimeOnly("org.yaml:snakeyaml")
     
     compileOnly("io.micronaut:micronaut-http-client")
     runtimeOnly("ch.qos.logback:logback-classic")
@@ -65,10 +72,18 @@ protobuf {
     }
 }
 
-// Copy proto files to the expected location
-task copyProtoFiles(type: Copy) {
-    from '../../../proto'
-    into 'src/main/proto'
+// Copy proto files to the expected location - only if not in Docker
+task copyProtoFiles {
+    onlyIf {
+        !project.hasProperty('skipProtoFileCopy') && !System.getenv('DOCKER_BUILD')
+    }
+    doLast {
+        copy {
+            from '../../../proto'
+            into 'src/main/proto'
+            includeEmptyDirs = false
+        }
+    }
 }
 
 // Make sure proto files are copied before compiling, generating proto, and processing resources

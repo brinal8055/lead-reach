@@ -1,6 +1,8 @@
 FROM gradle:8.5-jdk17 AS builder
 WORKDIR /app
-COPY . .
+COPY services/lead-service/ .
+COPY proto/ src/main/proto/
+ENV DOCKER_BUILD=true
 RUN gradle build --no-daemon
 
 FROM openjdk:17-slim

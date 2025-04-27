@@ -60,10 +60,18 @@ protobuf {
     }
 }
 
-// Copy proto files to the expected location
-task copyProtoFiles(type: Copy) {
-    from '../../../proto'
-    into 'src/main/proto'
+// Copy proto files to the expected location - only if not in Docker
+task copyProtoFiles {
+    onlyIf {
+        !project.hasProperty('skipProtoFileCopy') && !System.getenv('DOCKER_BUILD')
+    }
+    doLast {
+        copy {
+            from '../../../proto'
+            into 'src/main/proto'
+            includeEmptyDirs = false
+        }
+    }
 }
 
 // Make sure proto files are copied before compiling, generating proto, and processing resources

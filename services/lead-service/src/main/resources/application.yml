@@ -1,0 +1,29 @@
+micronaut:
+  application:
+    name: lead-service
+  server:
+    port: 50051
+
+datasources:
+  default:
+    url: ${JDBC_URL:`jdbc:mysql://localhost:3306/leadreach`}
+    username: ${JDBC_USER:root}
+    password: ${JDBC_PASSWORD:password}
+    driverClassName: com.mysql.cj.jdbc.Driver
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: validate
+        show_sql: true
+
+flyway:
+  datasources:
+    default:
+      enabled: true
+
+grpc:
+  server:
+    port: 50051

@@ -1,5 +1,7 @@
 package com.leadreach;
 
+import com.leadreach.domain.LeadEntity;
+import com.leadreach.repo.LeadRepository;
 import io.grpc.stub.StreamObserver;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -8,35 +10,42 @@ import leadreach.LeadOuterClass.Lead;
 import leadreach.LeadServiceOuterClass.GetLeadRequest;
 import leadreach.LeadServiceOuterClass.UpdateStatusRequest;
 
+import javax.annotation.PostConstruct;
 import java.util.Optional;
 import java.util.UUID;
 
 @Singleton
 public class LeadServiceImpl extends LeadServiceGrpc.LeadServiceImplBase {
     private final LeadRepository leadRepository;
-    private final WorkflowManager workflowManager;
 
     @Inject
-    public LeadServiceImpl(LeadRepository leadRepository, WorkflowManager workflowManager) {
+    public LeadServiceImpl(LeadRepository leadRepository) {
         this.leadRepository = leadRepository;
-        this.workflowManager = workflowManager;
+    }
+    
+    @PostConstruct
+    public void init() {
+        // Bootstrap demo data if table is empty
+        if (leadRepository.count() == 0) {
+            createLead("John Doe", "john@example.com");
+            createLead("Jane Smith", "jane@example.com");
+            createLead("Bob Johnson", "bob@example.com");
+        }
     }
 
     @Override
     public void getLead(GetLeadRequest request, StreamObserver<Lead> responseObserver) {
-        Optional<Lead> leadOpt = leadRepository.findById(request.getId());
+        Optional<LeadEntity> leadEntityOpt = leadRepository.findById(request.getId());
         
-        if (leadOpt.isEmpty()) {
+        if (leadEntityOpt.isEmpty()) {
             responseObserver.onError(io.grpc.Status.NOT_FOUND
                 .withDescription("Lead not found: " + request.getId())
                 .asRuntimeException());
             return;
         }
         
-        Lead lead = leadOpt.get();
-        
-        // Save checkpoint that lead was fetched
-        workflowManager.saveCheckpoint(lead.getId(), "LEAD_FETCHED");
+        LeadEntity leadEntity = leadEntityOpt.get();
+        Lead lead = convertToProto(leadEntity);
         
         responseObserver.onNext(lead);
         responseObserver.onCompleted();
@@ -45,12 +54,27 @@ public class LeadServiceImpl extends LeadServiceGrpc.LeadServiceImplBase {
     @Override
     public void updateStatus(UpdateStatusRequest request, StreamObserver<Lead> responseObserver) {
         try {
-            Lead updatedLead = leadRepository.updateStatus(request.getId(), request.getStatus());
+            // Check if lead exists
+            Optional<LeadEntity> leadEntityOpt = leadRepository.findById(request.getId());
+            if (leadEntityOpt.isEmpty()) {
+                responseObserver.onError(io.grpc.Status.NOT_FOUND
+                    .withDescription("Lead not found: " + request.getId())
+                    .asRuntimeException());
+                return;
+            }
+            
+            // Update status using the repository method
+            leadRepository.updateStatus(request.getId(), request.getStatus());
+            
+            // Fetch the updated entity
+            LeadEntity updatedEntity = leadRepository.findById(request.getId()).get();
+            Lead updatedLead = convertToProto(updatedEntity);
+            
             responseObserver.onNext(updatedLead);
             responseObserver.onCompleted();
-        } catch (RuntimeException e) {
-            responseObserver.onError(io.grpc.Status.NOT_FOUND
-                .withDescription("Lead not found: " + request.getId())
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                .withDescription("Error updating lead status: " + e.getMessage())
                 .asRuntimeException());
         }
     }
@@ -59,13 +83,25 @@ public class LeadServiceImpl extends LeadServiceGrpc.LeadServiceImplBase {
     // This would typically be called by tests or other internal services
     public Lead createLead(String name, String email) {
         String id = UUID.randomUUID().toString();
-        Lead lead = Lead.newBuilder()
-            .setId(id)
-            .setName(name)
-            .setEmail(email)
-            .setStatus("NEW")
-            .build();
         
-        return leadRepository.save(lead);
+        LeadEntity leadEntity = new LeadEntity();
+        leadEntity.setId(id);
+        leadEntity.setName(name);
+        leadEntity.setEmail(email);
+        leadEntity.setStatus("NEW");
+        
+        leadRepository.save(leadEntity);
+        
+        return convertToProto(leadEntity);
+    }
+    
+    // Helper method to convert LeadEntity to Lead proto
+    private Lead convertToProto(LeadEntity entity) {
+        return Lead.newBuilder()
+            .setId(entity.getId())
+            .setName(entity.getName())
+            .setEmail(entity.getEmail())
+            .setStatus(entity.getStatus())
+            .build();
     }
 }

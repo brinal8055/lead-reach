@@ -1,67 +1,65 @@
 package com.leadreach;
 
+import com.leadreach.domain.LeadEntity;
+import com.leadreach.repo.LeadRepository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 
-import java.time.Instant;
+import javax.annotation.PostConstruct;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * Manages lead processing workflows
+ */
 @Singleton
 public class WorkflowManager {
-    private final DynamoDbTable<WorkflowCheckpoint> checkpointTable;
+    
+    private final LeadRepository leadRepository;
+    private final ScheduledExecutorService scheduler;
     
     @Inject
-    public WorkflowManager(DynamoDbEnhancedClient enhancedClient) {
-        // Get or create the WorkflowCheckpoint table
-        this.checkpointTable = enhancedClient.table("WorkflowCheckpoint", 
-            TableSchema.fromBean(WorkflowCheckpoint.class));
+    public WorkflowManager(LeadRepository leadRepository) {
+        this.leadRepository = leadRepository;
+        this.scheduler = Executors.newScheduledThreadPool(1);
     }
     
-    public void saveCheckpoint(String leadId, String checkpoint) {
-        WorkflowCheckpoint checkpointItem = new WorkflowCheckpoint();
-        checkpointItem.setLeadId(leadId);
-        checkpointItem.setCheckpoint(checkpoint);
-        checkpointItem.setTimestamp(Instant.now().toString());
-        
-        checkpointTable.putItem(PutItemEnhancedRequest.builder()
-            .item(checkpointItem)
-            .build());
+    @PostConstruct
+    public void init() {
+        // Schedule periodic tasks
+        scheduler.scheduleAtFixedRate(this::processNewLeads, 0, 1, TimeUnit.MINUTES);
     }
     
-    @DynamoDbBean
-    public static class WorkflowCheckpoint {
-        private String leadId;
-        private String checkpoint;
-        private String timestamp;
-        
-        @DynamoDbPartitionKey
-        public String getLeadId() {
-            return leadId;
+    /**
+     * Process any leads in NEW status
+     */
+    private void processNewLeads() {
+        try {
+            // In a real implementation, this would:
+            // 1. Find all leads with NEW status
+            // 2. Send them to the enrichment service
+            // 3. Update their status based on the result
+            
+            // For now, just log that we're running
+            System.out.println("Processing new leads...");
+        } catch (Exception e) {
+            System.err.println("Error processing leads: " + e.getMessage());
         }
-        
-        public void setLeadId(String leadId) {
-            this.leadId = leadId;
-        }
-        
-        public String getCheckpoint() {
-            return checkpoint;
-        }
-        
-        public void setCheckpoint(String checkpoint) {
-            this.checkpoint = checkpoint;
-        }
-        
-        public String getTimestamp() {
-            return timestamp;
-        }
-        
-        public void setTimestamp(String timestamp) {
-            this.timestamp = timestamp;
+    }
+    
+    /**
+     * Shutdown the workflow manager
+     */
+    public void shutdown() {
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 }
