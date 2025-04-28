@@ -3,6 +3,11 @@ micronaut:
     name: orchestrator
   server:
     port: 50054
+  
+grpc:
+  server:
+    reflection:
+      enabled: true
 
 # Service connection properties
 lead:

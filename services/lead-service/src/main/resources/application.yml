@@ -16,6 +16,15 @@ datasources:
     username: ${JDBC_USER:root}
     password: ${JDBC_PASSWORD:123456}
     driverClassName: com.mysql.cj.jdbc.Driver
+    # Add connection validation to ensure database is available
+    validation-query: SELECT 1
+    connection-test-query: SELECT 1
+    test-on-borrow: true
+    test-while-idle: true
+    validation-interval: 30s
+    # Add connection pool settings
+    minimum-idle: 2
+    maximum-pool-size: 8
 
 jdbi:
   default:
@@ -23,4 +32,19 @@ jdbi:
 
 grpc:
   server:
-    port: 50055
+    port: ${GRPC_PORT:50055}
+    keep-alive-time: 60s
+    keep-alive-timeout: 20s
+    permit-keep-alive-without-calls: true
+    # Add health check settings
+    health:
+      enabled: true
+
+# Add logging configuration
+logger:
+  levels:
+    com.leadreach: DEBUG
+    io.micronaut.data.query: DEBUG
+    io.micronaut.context.condition: INFO
+    io.micronaut.http.client: DEBUG
+    io.micronaut.data.jdbc: DEBUG

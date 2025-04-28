@@ -35,10 +35,16 @@ public class DatabaseInitializer implements ApplicationEventListener<StartupEven
         try {
             ensureDatabaseExists();
             String sql = loadSqlFromFile("/db/migration/V1__create_lead_table.sql");
-            executeSql(sql);
-            LOG.info("Database schema initialized successfully");
+            if (sql != null) {
+                executeSql(sql);
+                LOG.info("Database schema initialized successfully");
+            } else {
+                LOG.error("Failed to load SQL from migration file");
+            }
         } catch (Exception e) {
-            LOG.error("Failed to initialize database schema", e);
+            LOG.error("Failed to initialize database schema: {}", e.getMessage(), e);
+            // Don't throw the exception, as it would prevent the application from starting
+            // Instead, log the error and continue
         }
     }
     
@@ -65,31 +71,47 @@ public class DatabaseInitializer implements ApplicationEventListener<StartupEven
                 }
             }
         } catch (SQLException e) {
-            LOG.error("Error connecting to database", e);
+            LOG.error("Error connecting to database: {}", e.getMessage(), e);
             throw e;
         }
     }
     
-    private String loadSqlFromFile(String resourcePath) throws IOException {
+    private String loadSqlFromFile(String resourcePath) {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(getClass().getResourceAsStream(resourcePath)))) {
+            if (reader == null) {
+                LOG.error("Could not find resource: {}", resourcePath);
+                return null;
+            }
             return reader.lines().collect(Collectors.joining("\n"));
+        } catch (IOException | NullPointerException e) {
+            LOG.error("Error loading SQL from file {}: {}", resourcePath, e.getMessage(), e);
+            return null;
         }
     }
     
-    private void executeSql(String sql) throws SQLException {
+    private void executeSql(String sql) {
+        if (sql == null || sql.trim().isEmpty()) {
+            LOG.error("SQL is null or empty, skipping execution");
+            return;
+        }
+        
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
             try {
                 statement.execute(sql);
+                LOG.info("SQL executed successfully");
             } catch (SQLException e) {
                 // Check if the error is because the table already exists
                 if (e.getMessage().contains("already exists")) {
                     LOG.info("Table already exists, skipping creation");
                 } else {
+                    LOG.error("Error executing SQL: {}", e.getMessage(), e);
                     throw e;
                 }
             }
+        } catch (SQLException e) {
+            LOG.error("Error getting connection or creating statement: {}", e.getMessage(), e);
         }
     }
 }
