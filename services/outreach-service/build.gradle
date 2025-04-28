@@ -20,6 +20,7 @@ dependencies {
     
     compileOnly("io.micronaut:micronaut-http-client")
     runtimeOnly("ch.qos.logback:logback-classic")
+    runtimeOnly("org.yaml:snakeyaml")
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:testcontainers")

@@ -23,6 +23,15 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-jpa")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("mysql:mysql-connector-java:8.0.33")
+    
+    // JDBI dependencies
+    implementation("org.jdbi:jdbi3-core:3.41.3")
+    implementation("org.jdbi:jdbi3-sqlobject:3.41.3")
+    implementation("org.jdbi:jdbi3-json:3.41.3")
+    
+    // Lombok
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 
     // Add Flyway with MySQL 8.0 support
     implementation("io.micronaut.flyway:micronaut-flyway")

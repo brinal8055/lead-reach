@@ -2,29 +2,25 @@ micronaut:
   application:
     name: lead-service
   server:
-    port: 50051
+    port: 8081
   flyway:
-    enabled: true
+    enabled: false
     datasources:
       default:
-        enabled: true
-        locations: classpath:db/migration
+        enabled: false
 
 datasources:
   default:
+    # Use mysql hostname when running in Docker, localhost when running individually
     url: ${JDBC_URL:`jdbc:mysql://localhost:3306/leadreach`}
     username: ${JDBC_USER:root}
-    password: ${JDBC_PASSWORD:password}
+    password: ${JDBC_PASSWORD:123456}
     driverClassName: com.mysql.cj.jdbc.Driver
 
-jpa:
+jdbi:
   default:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: validate
-        show_sql: true
+    transaction-handler: jdbc
 
 grpc:
   server:
-    port: 50051
+    port: 50055
