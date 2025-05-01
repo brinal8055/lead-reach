@@ -1,4 +1,4 @@
-package com.leadreach;
+package com.leadreach.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -8,7 +8,6 @@ import io.micronaut.context.annotation.Value;
 import jakarta.inject.Singleton;
 import leadreach.EnrichmentServiceGrpc;
 import leadreach.LeadServiceGrpc;
-import leadreach.OrchestratorGrpc;
 import leadreach.OutreachServiceGrpc;
 
 @Factory

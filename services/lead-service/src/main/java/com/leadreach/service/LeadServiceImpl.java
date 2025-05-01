@@ -1,4 +1,4 @@
-package com.leadreach;
+package com.leadreach.service;
 
 import com.leadreach.domain.LeadEntity;
 import com.leadreach.repo.LeadRepository;
