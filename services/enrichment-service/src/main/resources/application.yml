@@ -7,3 +7,7 @@ micronaut:
 grpc:
   server:
     port: ${GRPC_PORT:50052}
+    enable-proto-reflection: true
+    enabled: true
+    health:
+      enabled: true

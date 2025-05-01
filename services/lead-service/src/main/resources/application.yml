@@ -39,6 +39,8 @@ grpc:
     # Add health check settings
     health:
       enabled: true
+    enable-proto-reflection: true
+    enabled: true
 
 # Add logging configuration
 logger:

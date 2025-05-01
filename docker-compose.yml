@@ -70,13 +70,13 @@ services:
     build:
       context: .
       dockerfile: ./services/orchestrator/Dockerfile
-    ports: [ "50054:50054" ]
+    ports: [ "50051:50051", "8080:8080" ]
     environment:
       - AWS_REGION=local
       - DYNAMO_ENDPOINT=http://dynamodb:8000
       - AWS_ACCESS_KEY_ID=dummy
       - AWS_SECRET_ACCESS_KEY=dummy
-      - GRPC_PORT=50054
+      - GRPC_PORT=50051
       - LEAD_SERVICE_HOST=lead-service
       - LEAD_SERVICE_PORT=50055
       - ENRICHMENT_SERVICE_HOST=enrichment-service

@@ -29,6 +29,7 @@ dependencies {
     implementation("io.grpc:grpc-netty:1.62.2")
     implementation("io.grpc:grpc-protobuf:1.62.2")
     implementation("io.grpc:grpc-stub:1.62.2")
+    implementation("io.grpc:grpc-services:1.62.2")  // For reflection service
     
     // DynamoDB Local for testing
     testImplementation("org.testcontainers:dynalite")

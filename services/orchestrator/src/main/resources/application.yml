@@ -2,11 +2,14 @@ micronaut:
   application:
     name: orchestrator
   server:
-    port: 50054
+    port: 8080
   
 grpc:
   server:
-    reflection:
+    port: 50051
+    enable-proto-reflection: true
+    enabled: true
+    health:
       enabled: true
 
 # Service connection properties

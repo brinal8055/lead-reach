@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package leadreach;
+
+// ===== Orchestrator (optional external caller) =====
+service Orchestrator {
+  rpc StartWorkflow(StartWorkflowRequest) returns (StartWorkflowResponse);
+}
+message StartWorkflowRequest  { string lead_id = 1; }
+message StartWorkflowResponse { string workflow_id = 1; }
