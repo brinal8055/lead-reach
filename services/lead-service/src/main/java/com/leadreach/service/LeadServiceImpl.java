@@ -41,6 +41,8 @@ public class LeadServiceImpl extends LeadServiceGrpc.LeadServiceImplBase {
                     createLead("John Doe", "john@example.com");
                     createLead("Jane Smith", "jane@example.com");
                     createLead("Bob Johnson", "bob@example.com");
+                    createLead("Smith Williamson", "smith@example.com");
+                    createLead("Mark Erickson", "mark@example.com");
                     LOG.info("Demo leads created successfully");
                 } catch (Exception e) {
                     LOG.error("Error creating demo leads: {}", e.getMessage(), e);
