@@ -2,29 +2,51 @@ micronaut:
   application:
     name: lead-service
   server:
-    port: 50051
+    port: 8081
   flyway:
-    enabled: true
+    enabled: false
     datasources:
       default:
-        enabled: true
-        locations: classpath:db/migration
+        enabled: false
 
 datasources:
   default:
+    # Use mysql hostname when running in Docker, localhost when running individually
     url: ${JDBC_URL:`jdbc:mysql://localhost:3306/leadreach`}
     username: ${JDBC_USER:root}
-    password: ${JDBC_PASSWORD:password}
+    password: ${JDBC_PASSWORD:123456}
     driverClassName: com.mysql.cj.jdbc.Driver
+    # Add connection validation to ensure database is available
+    validation-query: SELECT 1
+    connection-test-query: SELECT 1
+    test-on-borrow: true
+    test-while-idle: true
+    validation-interval: 30s
+    # Add connection pool settings
+    minimum-idle: 2
+    maximum-pool-size: 8
 
-jpa:
+jdbi:
   default:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: validate
-        show_sql: true
+    transaction-handler: jdbc
 
 grpc:
   server:
-    port: 50051
+    port: ${GRPC_PORT:50055}
+    keep-alive-time: 60s
+    keep-alive-timeout: 20s
+    permit-keep-alive-without-calls: true
+    # Add health check settings
+    health:
+      enabled: true
+    enable-proto-reflection: true
+    enabled: true
+
+# Add logging configuration
+logger:
+  levels:
+    com.leadreach: DEBUG
+    io.micronaut.data.query: DEBUG
+    io.micronaut.context.condition: INFO
+    io.micronaut.http.client: DEBUG
+    io.micronaut.data.jdbc: DEBUG

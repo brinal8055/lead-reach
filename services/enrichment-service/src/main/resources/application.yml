@@ -1,0 +1,13 @@
+micronaut:
+  application:
+    name: enrichment-service
+  server:
+    port: ${SERVER_PORT:8082}
+
+grpc:
+  server:
+    port: ${GRPC_PORT:50052}
+    enable-proto-reflection: true
+    enabled: true
+    health:
+      enabled: true

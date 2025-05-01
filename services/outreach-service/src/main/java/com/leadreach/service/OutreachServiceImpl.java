@@ -1,4 +1,4 @@
-package com.leadreach;
+package com.leadreach.service;
 
 import io.grpc.stub.StreamObserver;
 import jakarta.inject.Singleton;

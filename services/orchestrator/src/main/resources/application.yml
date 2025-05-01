@@ -1,0 +1,36 @@
+micronaut:
+  application:
+    name: orchestrator
+  server:
+    port: 8080
+  
+grpc:
+  server:
+    port: 50051
+    enable-proto-reflection: true
+    enabled: true
+    health:
+      enabled: true
+
+# Service connection properties
+lead:
+  service:
+    host: ${LEAD_SERVICE_HOST:localhost}
+    port: ${LEAD_SERVICE_PORT:50055}
+
+enrichment:
+  service:
+    host: ${ENRICHMENT_SERVICE_HOST:localhost}
+    port: ${ENRICHMENT_SERVICE_PORT:50052}
+
+outreach:
+  service:
+    host: ${OUTREACH_SERVICE_HOST:localhost}
+    port: ${OUTREACH_SERVICE_PORT:50053}
+
+# DynamoDB configuration
+dynamodb:
+  endpoint: ${DYNAMODB_ENDPOINT:http://localhost:8000}
+  region: ${DYNAMODB_REGION:us-east-1}
+  accessKey: ${DYNAMODB_ACCESS_KEY:test}
+  secretKey: ${DYNAMODB_SECRET_KEY:test}

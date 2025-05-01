@@ -1,0 +1,13 @@
+micronaut:
+  application:
+    name: outreach-service
+  server:
+    port: ${SERVER_PORT:8083}
+
+grpc:
+  server:
+    port: ${GRPC_PORT:50053}
+    enable-proto-reflection: true
+    enabled: true
+    health:
+      enabled: true
